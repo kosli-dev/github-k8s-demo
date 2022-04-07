@@ -8,6 +8,7 @@ env:
   K8S_CLUSTER_NAME: merkely-dev
   K8S_GCP_ZONE: europe-west1
   NAMESPACE: github-k8s-demo
+  IMAGE: ewelinawilkosz/github-k8s-demo
   MERKELY_OWNER: demo
   MERKELY_PIPELINE: github-k8s-demo
   MERKELY_CLI_VERSION: "1.5.0"
@@ -19,7 +20,7 @@ jobs:
     outputs:
       tag: ${{ steps.prep.outputs.tag }}
       tagged-image: ${{ steps.prep.outputs.tagged-image }}
-      image-digest: ${{ steps.digest-prep.outputs.image-digest }}
+      #image-digest: ${{ steps.digest-prep.outputs.image-digest }}
 
     steps:
     # checkout code
@@ -31,14 +32,11 @@ jobs:
       id: prep
       run: |
         TAG=$(echo $GITHUB_SHA | head -c7)
-        IMAGE=ewelinawilkosz/github-k8s-demo
-        TAGGED_IMAGE=${IMAGE}:${TAG}
+        TAGGED_IMAGE=${{ env.IMAGE }}:${TAG}
         echo "TAG=${TAG}" >> ${GITHUB_ENV}
-        echo "IMAGE=${IMAGE}" >> ${GITHUB_ENV}
-        echo "TAGGED_IMAGE=${TAGGED_IMAGE}" >> ${GITHUB_ENV}
-
-    # echo ::set-output name=tag::${TAG}
-    # echo ::set-output name=tagged-image::${TAGGED_IMAGE}
+        echo "TAGGED_IMAGE=${TAGGED_IMAGE}" >> ${GITHUB_ENV}        
+        echo ::set-output name=tag::${TAG}
+        echo ::set-output name=tagged-image::${TAGGED_IMAGE}
        
   
     # This is the a separate action that sets up buildx (buildkit) runner
@@ -124,5 +122,5 @@ jobs:
     
     - name: Deploy
       run: |
-        sed -i \'s/${{ env.IMAGE }}/${{ env.IMAGE }}:${{ env.TAG }}/g\' k8s/deployment.yaml
+        sed -i \'s/${{ env.IMAGE }}/${{ env.IMAGE }}:${{ needs.build-report.outputs.tag }}/g\' k8s/deployment.yaml
         kubectl apply -f k8s/deployment.yaml -n ${{ env.NAMESPACE }} 

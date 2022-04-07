@@ -1,7 +1,7 @@
 name: Report environment
 
 on:
-  wokflow_dispatch:
+  workflow_dispatch:
 
 env:
   K8S_CLUSTER_NAME: merkely-dev

@@ -1,0 +1,42 @@
+name: Report environment
+
+on:
+  wokflow_dispatch:
+
+env:
+  K8S_CLUSTER_NAME: merkely-dev
+  K8S_GCP_ZONE: europe-west1
+  NAMESPACE: github-k8s-demo
+  MERKELY_OWNER: demo
+  MERKELY_ENVIRONMENT: github-k8s-test
+  MERKELY_CLI_VERSION: "1.5.0"
+
+jobs:
+  report-env:
+    runs-on: ubuntu-20.04
+
+    steps:
+
+    - name: Download Merkely cli client
+      id: download-merkely-cli
+      run: |
+        wget https://github.com/merkely-development/cli/releases/download/v${{ env.MERKELY_CLI_VERSION }}/merkely_${{ env.MERKELY_CLI_VERSION }}_linux_amd64.tar.gz
+        tar -xf merkely_${{ env.MERKELY_CLI_VERSION }}_linux_amd64.tar.gz merkely
+
+    - name: auth
+      uses: google-github-actions/auth@v0.4.0
+      with:
+        credentials_json: ${{ secrets.GCP_K8S_CREDENTIALS }}
+
+    - name: connect-to-k8s
+      uses: google-github-actions/get-gke-credentials@main
+      with:
+        cluster_name: ${{ env.K8S_CLUSTER_NAME }}
+        location: ${{ env.K8S_GCP_ZONE }}
+
+    - name: report to Merkely
+      run:
+        ./merkely environment report k8s -n ${{ env.NAMESPACE }} ${{ env.MERKELY_ENVIRONMENT }}
+
+
+    

@@ -122,5 +122,5 @@ jobs:
     
     - name: Deploy
       run: |
-        sed -i \'s/${{ env.IMAGE }}/${{ env.IMAGE }}:${{ needs.build-report.outputs.tag }}/g\' k8s/deployment.yaml
+        sed -i 's/TAG/${{ needs.build-report.outputs.tag }}/g' k8s/deployment.yaml
         kubectl apply -f k8s/deployment.yaml -n ${{ env.NAMESPACE }} 

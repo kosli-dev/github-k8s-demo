@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: mytime-gh
-        image: ewelinawilkosz/github-k8s-demo
+        image: ewelinawilkosz/github-k8s-demo:TAG
         ports:
         - containerPort: 80
 ---

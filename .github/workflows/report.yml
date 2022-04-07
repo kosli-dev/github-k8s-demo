@@ -35,6 +35,8 @@ jobs:
         location: ${{ env.K8S_GCP_ZONE }}
 
     - name: report to Merkely
+      env:
+        MERKELY_API_TOKEN: ${{ secrets.MERKELY_API_TOKEN }}
       run:
         ./merkely environment report k8s -n ${{ env.NAMESPACE }} ${{ env.MERKELY_ENVIRONMENT }}
 

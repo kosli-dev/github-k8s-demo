@@ -77,7 +77,7 @@ jobs:
         MERKELY_API_TOKEN: ${{ secrets.MERKELY_API_TOKEN }}
       run: 
         ./merkely pipeline artifact report creation ${{ env.TAGGED_IMAGE }}
-          --artifcat-type docker 
+          --artifact-type docker 
 
   # deploy review environment
   deploy:

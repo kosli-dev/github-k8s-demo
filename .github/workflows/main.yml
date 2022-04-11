@@ -11,6 +11,7 @@ env:
   IMAGE: ewelinawilkosz/github-k8s-demo
   MERKELY_OWNER: demo
   MERKELY_PIPELINE: github-k8s-demo
+  MERKELY_ENVIRONMENT: github-k8s-test
   MERKELY_CLI_VERSION: "1.5.0"
 
 jobs:

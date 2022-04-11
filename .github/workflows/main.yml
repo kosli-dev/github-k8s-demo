@@ -54,8 +54,7 @@ jobs:
       with:
         push: true
         tags: ${{ env.TAGGED_IMAGE }}
-        cache-from: type=registry,ref=${{ env.IMAGE }}:buildcache
-        cache-to: type=registry,ref=${{ env.IMAGE }}:buildcache,mode=max
+        no-cache: true
 
     - name: Make the image digest available for following steps
       id: digest-prep
@@ -124,10 +123,9 @@ jobs:
     - name: Deploy
       run: |
         sed -i 's/TAG/${{ needs.build-report.outputs.tag }}/g' k8s/deployment.yaml
-        cat k8s/deployment.yaml
         kubectl apply -f k8s/deployment.yaml -n ${{ env.NAMESPACE }} 
 
     - name: Report deployment
       run: 
-        ./merkely pipeline deployment report ${{ needs.build-test-report.outputs.tagged-image }}
-          --sha256 ${{ needs.build-test-report.outputs.image-digest }} 
+        ./merkely pipeline deployment report ${{ needs.build-report.outputs.tagged-image }}
+          --sha256 ${{ needs.build-report.outputs.image-digest }} 

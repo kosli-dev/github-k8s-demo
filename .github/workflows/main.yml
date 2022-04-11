@@ -115,6 +115,12 @@ jobs:
       run: |
         kubectl get namespace ${{ env.NAMESPACE }} || kubectl create namespace ${{ env.NAMESPACE }}
     
+    - name: Download Merkely cli client
+      id: download-merkely-cli
+      run: |
+        wget https://github.com/merkely-development/cli/releases/download/v${{ env.MERKELY_CLI_VERSION }}/merkely_${{ env.MERKELY_CLI_VERSION }}_linux_amd64.tar.gz
+        tar -xf merkely_${{ env.MERKELY_CLI_VERSION }}_linux_amd64.tar.gz merkely 
+    
     - name: Deploy
       run: |
         sed -i 's/TAG/${{ needs.build-report.outputs.tag }}/g' k8s/deployment.yaml

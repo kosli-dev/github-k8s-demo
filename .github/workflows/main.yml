@@ -126,6 +126,8 @@ jobs:
         kubectl apply -f k8s/deployment.yaml -n ${{ env.NAMESPACE }} 
 
     - name: Report deployment
+      env:
+        MERKELY_API_TOKEN: ${{ secrets.MERKELY_API_TOKEN }}
       run: 
         ./merkely pipeline deployment report ${{ needs.build-report.outputs.tagged-image }}
           --sha256 ${{ needs.build-report.outputs.image-digest }} 

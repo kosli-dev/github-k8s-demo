@@ -34,10 +34,9 @@ jobs:
         TAG=$(echo $GITHUB_SHA | head -c7)
         TAGGED_IMAGE=${{ env.IMAGE }}:${TAG}
         echo "TAG=${TAG}" >> ${GITHUB_ENV}
-        echo "TAGGED_IMAGE=${TAGGED_IMAGE}" >> ${GITHUB_ENV}        
+        echo "TAGGED_IMAGE=${TAGGED_IMAGE}" >> ${GITHUB_ENV}
         echo ::set-output name=tag::${TAG}
         echo ::set-output name=tagged-image::${TAGGED_IMAGE}
-       
   
     # This is the a separate action that sets up buildx (buildkit) runner
     - name: Set up Docker Buildx
@@ -58,38 +57,27 @@ jobs:
         cache-from: type=registry,ref=${{ env.IMAGE }}:buildcache
         cache-to: type=registry,ref=${{ env.IMAGE }}:buildcache,mode=max
 
-    # - name: Make the image digest available for following steps
-    #   id: digest-prep
-    #   run: |
-    #     ARTIFACT_SHA=$( echo ${{ steps.docker_build.outputs.digest }} | sed 's/.*://')
-    #     echo "DIGEST=$ARTIFACT_SHA" >> ${GITHUB_ENV}
-    #     echo ::set-output name=image-digest::${ARTIFACT_SHA}
+    - name: Download Merkely cli client
+      id: download-merkely-cli
+      run: |
+        wget https://github.com/merkely-development/cli/releases/download/v${{ env.MERKELY_CLI_VERSION }}/merkely_${{ env.MERKELY_CLI_VERSION }}_linux_amd64.tar.gz
+        tar -xf merkely_${{ env.MERKELY_CLI_VERSION }}_linux_amd64.tar.gz merkely  
 
-    # - name: Download Merkely cli client
-    #   id: download-merkely-cli
-    #   run: |
-    #     wget https://github.com/merkely-development/cli/releases/download/v${{ env.MERKELY_CLI_VERSION }}/merkely_${{ env.MERKELY_CLI_VERSION }}_linux_amd64.tar.gz
-    #     tar -xf merkely_${{ env.MERKELY_CLI_VERSION }}_linux_amd64.tar.gz merkely
+    - name: Declare pipeline in Merkely (staging)
+      env:
+        MERKELY_API_TOKEN: ${{ secrets.MERKELY_API_TOKEN }}
+      run: 
+        ./merkely pipeline declare 
+          --description "Merkely server" 
+          --pipeline ${{ env.MERKELY_PIPELINE }} 
+          --template "artifact"
 
-    # - name: Declare pipeline in Merkely (staging)
-    #   env:
-    #     MERKELY_API_TOKEN: ${{ secrets.MERKELY_API_TOKEN }}
-    #   run: 
-    #     ./merkely pipeline declare 
-    #       --description "Merkely server" 
-    #       --pipeline ${{ env.MERKELY_PIPELINE }} 
-    #       --template "artifact"
-
-
-    # - name: Report Docker image in Merkely (production)
-    #   env:
-    #     MERKELY_API_TOKEN: ${{ secrets.MERKELY_API_TOKEN }}
-    #   run: 
-    #     ./merkely pipeline artifact report creation ${{ env.TAGGED_IMAGE }}
-    #       --sha256 ${{ env.DIGEST }} 
-
-
-
+    - name: Report Docker image in Merkely (production)
+      env:
+        MERKELY_API_TOKEN: ${{ secrets.MERKELY_API_TOKEN }}
+      run: 
+        ./merkely pipeline artifact report creation ${{ env.TAGGED_IMAGE }}
+          --artifcat-type docker 
 
   # deploy review environment
   deploy:

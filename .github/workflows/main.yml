@@ -3,7 +3,7 @@ name: Build and Deploy
 on:
   push:
 
-
+env:
   # gke k8s cluster variables
   K8S_CLUSTER_NAME: merkely-dev
   K8S_GCP_ZONE: europe-west1
